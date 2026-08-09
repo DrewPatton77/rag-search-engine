@@ -1,5 +1,5 @@
 import json
-
+import string
 from typing import Any, TypedDict
 
 class Movie(TypedDict):
@@ -13,3 +13,6 @@ def load_movies() -> list[Movie]:
         data = f.read()
 
     return json.loads(data)
+
+def preprocess_text(text: str) -> str:
+    return text.lower().translate(str.maketrans("","",string.punctuation))
