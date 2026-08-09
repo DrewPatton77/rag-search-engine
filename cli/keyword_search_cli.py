@@ -18,16 +18,17 @@ def main() -> None:
         case "search":
             print(f"Searching for: {args.query}")
             query = args.query
-            movie_titles: list[str] = search_command(query)
-            movie_titles_truncated: list[str] = movie_titles[:5]
-            for i in range(0,len(movie_titles_truncated)):
-                print(f"{i+1}. {movie_titles_truncated[i]}")
+            movies: list[str] = search_command(query)
+            for movie in movies:
+                print(f"Title: {movie['title']} ID: {movie['id']}")
 
             pass
 
         case "build":
             print(f"Building...")
             build_command()
+
+            pass
 
         case _:
             parser.print_help()

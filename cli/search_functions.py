@@ -1,8 +1,10 @@
 from ast import Dict
 import json
 import string
+from nltk.stem import PorterStemmer
 from typing import Any, TypedDict
 import pickle
+import sys
 
 class Movie(TypedDict):
     id: int
@@ -15,7 +17,7 @@ class InvertedIndex():
         self.docmap: Dict[str, Movie] = {}
 
     def __add_document(self, doc_id: int, text: str) -> None:
-        tokens = tokenize(text)
+        tokens = stem_token(filter_token(tokenize(text)))
         for token in tokens:
             if token not in self.index:
                 self.index[token] = {doc_id}
@@ -23,6 +25,10 @@ class InvertedIndex():
 
 
     def get_documents(self, term: str) -> list[int]:
+        try:
+            self.index[term]
+        except:
+            return None
         return sorted(list(self.index[term]))
 
     def build(self) -> None:
@@ -37,6 +43,18 @@ class InvertedIndex():
             pickle.dump(self.index, f)
         with open(CACHE_DOCMAP_PATH, 'wb') as f:
             pickle.dump(self.docmap, f)
+
+    def load(self) -> None:
+        try:
+            with open(CACHE_INDEX_PATH, 'rb') as f:
+                self.index = pickle.load(f)
+            with open(CACHE_DOCMAP_PATH, 'rb') as f:
+                self.docmap = pickle.load(f)
+        except:
+            print("Error: File does not exist")
+            sys.exit(1)
+
+
 
 DATA_PATH = "Data/movies.json"
 STOPWORDS_PATH = "Data/stopwords.txt"
@@ -62,3 +80,19 @@ def load_stopwords() -> list[str]:
     for stopword in stopwords_preprocessed:
         stopwords.append(preprocess_text(stopword))
     return stopwords
+
+def filter_token(tokens: list[str]) -> list[str]:
+    stopwords: list[str] = load_stopwords()
+    filtered_tokens = []
+    for token in tokens:
+        if token not in stopwords:
+            filtered_tokens.append(token)
+    return filtered_tokens
+
+def stem_token(tokens: list[str]) -> list[str]:
+    stemmer = PorterStemmer() # Create an instance of PorterStemmer
+
+    stemmed_tokens = []
+    for token in tokens:
+        stemmed_tokens.append(stemmer.stem(token))
+    return stemmed_tokens
