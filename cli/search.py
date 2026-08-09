@@ -45,3 +45,10 @@ def build_command():
     iindex.build()
     iindex.save()
     iindex.load()
+
+def tf_command(doc_id: int, term: str) -> None:
+    iindex = InvertedIndex()
+    iindex.load()
+    tf = iindex.get_tf(doc_id, term)
+    doc = iindex.docmap[doc_id]
+    print(f"{term} has frequency: {tf} for movie: {doc['title']}")
