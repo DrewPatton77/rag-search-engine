@@ -85,7 +85,7 @@ class InvertedIndex():
 
         return math.log((total_doc_count + 1) / (term_match_doc_count + 1))
 
-    def get_bm25(self, term: str) -> float:
+    def get_bm25_inv_df(self, term: str) -> float:
         term = single_token(term)
 
         N: int = len(self.docmap)
@@ -110,6 +110,35 @@ class InvertedIndex():
             print('Warning: Zero documents. Try building the inverse index.')
             return 0.0
         return sum(self.doc_lengths.values()) / len(self.doc_lengths)
+
+    def bm25(self, doc_id: int, term: str) -> float:
+        bm25_tf = self.get_bm25_tf(doc_id, term, k1=1.5, b=0.75)
+        bm25_inv_df = self.get_bm25_inv_df(term)
+        return bm25_tf * bm25_inv_df
+
+    def bm25_search(self, query: str, limit: int = 5):
+        tokens = stem_token(filter_token(tokenize(query)))
+
+        docs_with_query = []
+        for token in tokens:
+            docs_with_query.extend(self.get_documents(token))
+        docs_with_query = set(docs_with_query)
+
+        score = {}
+        for token in tokens:
+            bm25_inv_df = self.get_bm25_inv_df(token)
+            for doc_id in docs_with_query:
+                bm25_tf = self.get_bm25_tf(doc_id, token)
+                if doc_id not in score:
+                    score[doc_id] = bm25_inv_df * bm25_tf
+                else:
+                    score[doc_id] += bm25_inv_df * bm25_tf
+
+        self.score = dict(sorted(score.items(), key= lambda item: item[1], reverse=True))
+
+
+
+
 
 DATA_PATH = "Data/movies.json"
 STOPWORDS_PATH = "Data/stopwords.txt"

@@ -70,9 +70,19 @@ def tfidf_command(doc_id: int, term: str) -> None:
 def bm25_inv_df_command(term: str) -> float:
     iindex = InvertedIndex()
     iindex.load()
-    return iindex.get_bm25(term)
+    return iindex.get_bm25_inv_df(term)
 
 def bm25tf_command(doc_id: int, term: str, k1: float, b: float) -> float:
     iindex = InvertedIndex()
     iindex.load()
     return iindex.get_bm25_tf(doc_id, term, k1=k1, b=b)
+
+def bm25search_command(query: str, limit: int = 5) -> None:
+    iindex = InvertedIndex()
+    iindex.load()
+    iindex.bm25_search(query, limit = limit)
+
+    for i, doc_id in enumerate(iindex.score):
+        if i >= limit:
+            break
+        print(f"{i+1}. ({doc_id}) {iindex.docmap[doc_id]['title']} - Score: {iindex.score[doc_id]:.2f}")
