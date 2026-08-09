@@ -16,3 +16,6 @@ def load_movies() -> list[Movie]:
 
 def preprocess_text(text: str) -> str:
     return text.lower().translate(str.maketrans("","",string.punctuation))
+
+def tokenize(text: str) -> list[str]:
+    return preprocess_text(text).split()
