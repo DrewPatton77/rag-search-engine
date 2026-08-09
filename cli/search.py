@@ -67,7 +67,12 @@ def tfidf_command(doc_id: int, term: str) -> None:
     tfidf = tf * inv_df
     print(f"TF-IDF score of '{term}' in document '{doc_id}:' {tfidf:.2f}")
 
-def bm25_command(term: str) -> float:
+def bm25_inv_df_command(term: str) -> float:
     iindex = InvertedIndex()
     iindex.load()
     return iindex.get_bm25(term)
+
+def bm25tf_command(doc_id: int, term: str, k1: float) -> float:
+    iindex = InvertedIndex()
+    iindex.load()
+    return iindex.get_bm25_tf(doc_id, term, k1=k1)

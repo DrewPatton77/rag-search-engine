@@ -91,12 +91,18 @@ class InvertedIndex():
 
         return math.log((N - df + 0.5) / (df + 0.5) + 1)
 
+    def get_bm25_tf(self, doc_id: int, term: str, k1: float = 1.5) -> float:
+        tf = self.get_tf(doc_id, term)
+        return (tf * (k1 + 1)) / (tf + k1)
+
 
 DATA_PATH = "Data/movies.json"
 STOPWORDS_PATH = "Data/stopwords.txt"
 CACHE_INDEX_PATH = "cache/index.pkl"
 CACHE_DOCMAP_PATH = "cache/docmap.pkl"
 CACHE_TERM_FREQUENCY_PATH = "cache/term_frequencie.pkl"
+BM25_K1 = 1.5
+
 
 def load_movies() -> list[Movie]:
     with open(DATA_PATH, "r") as f:
