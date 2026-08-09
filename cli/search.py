@@ -7,7 +7,7 @@ def search_command(query: str) -> list[str]:
 
     movies_in_query = []
     for movie in data['movies']:
-        if query in movie['title']:
+        if query in movie['title'].lower():
             movies_in_query.append(movie['title'])
 
     return movies_in_query
