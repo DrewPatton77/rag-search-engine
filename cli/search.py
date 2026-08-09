@@ -52,3 +52,9 @@ def tf_command(doc_id: int, term: str) -> None:
     tf = iindex.get_tf(doc_id, term)
     doc = iindex.docmap[doc_id]
     print(f"{term} has frequency: {tf} for movie: {doc['title']}")
+
+def inv_df_command(term: str) -> None:
+    iindex = InvertedIndex()
+    iindex.load()
+    inv_df = iindex.get_inv_df_score(term)
+    print(f"Inverse document frequency of '{term}': {inv_df:.2f}")

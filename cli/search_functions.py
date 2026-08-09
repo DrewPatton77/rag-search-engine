@@ -6,6 +6,7 @@ from nltk.stem import PorterStemmer
 from typing import Any, TypedDict
 import pickle
 import sys
+import math
 
 class Movie(TypedDict):
     id: int
@@ -62,8 +63,21 @@ class InvertedIndex():
             print("Error: File does not exist")
             sys.exit(1)
 
-    def get_tf(self, doc_id: int, term: list[str]) -> int:
+    def get_tf(self, doc_id: int, term: str) -> int:
         return self.term_frequencies[doc_id][single_token(term)]
+
+    def get_inv_df_score(self, term: str) -> int:
+        term = single_token(term)
+
+        total_doc_count: int = len(self.docmap)
+
+        doc_ids = self.docmap.keys()
+        term_match_doc_count: int = 0
+        for doc_id in doc_ids:
+            if self.get_tf(doc_id, term) != 0:
+                term_match_doc_count += 1
+
+        return math.log((total_doc_count + 1) / (term_match_doc_count + 1))
 
 
 DATA_PATH = "Data/movies.json"

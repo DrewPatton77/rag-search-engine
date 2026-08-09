@@ -1,5 +1,5 @@
 import argparse
-from search import search_command, build_command, tf_command
+from search import search_command, build_command, tf_command, inv_df_command
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -13,6 +13,9 @@ def main() -> None:
     tf_parser = subparsers.add_parser("tf", help="Get the term frequency of a single term for a document id")
     tf_parser.add_argument("doc_id", type=int, help="The document id")
     tf_parser.add_argument("term", type=str, help="The term to count")
+
+    inv_df_parser = subparsers.add_parser("idf", help="Get the inverse document frequency score for a given term")
+    inv_df_parser.add_argument("term", type=str, help="The term for the inverse document frequency score")
 
     args = parser.parse_args()
 
@@ -38,6 +41,9 @@ def main() -> None:
             term = args.term
             tf_command(doc_id, term)
 
+        case "idf":
+            term = args.term
+            inv_df_command(term)
 
         case _:
             parser.print_help()
