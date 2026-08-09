@@ -1,5 +1,5 @@
 import argparse
-from search import search_command, build_command, tf_command, inv_df_command
+from search import search_command, build_command, tf_command, inv_df_command, tfidf_command
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -12,11 +12,14 @@ def main() -> None:
 
     tf_parser = subparsers.add_parser("tf", help="Get the term frequency of a single term for a document id")
     tf_parser.add_argument("doc_id", type=int, help="The document id")
-    tf_parser.add_argument("term", type=str, help="The term to count")
+    tf_parser.add_argument("term", type=str, help="The term to use for counting")
 
     inv_df_parser = subparsers.add_parser("idf", help="Get the inverse document frequency score for a given term")
-    inv_df_parser.add_argument("term", type=str, help="The term for the inverse document frequency score")
+    inv_df_parser.add_argument("term", type=str, help="The term to use for the inverse document frequency score")
 
+    tf_inv_df_parser = subparsers.add_parser("tfidf", help="Get the product of the term-frequency and inverse document frequency score")
+    tf_inv_df_parser.add_argument("doc_id", type=int, help="The document id")
+    tf_inv_df_parser.add_argument("term", type=str, help="The term to use for the tfidf score")
     args = parser.parse_args()
 
     match args.command:
@@ -44,6 +47,11 @@ def main() -> None:
         case "idf":
             term = args.term
             inv_df_command(term)
+
+        case "tfidf":
+            doc_id = args.doc_id
+            term = args.term
+            tfidf_command(doc_id, term)
 
         case _:
             parser.print_help()

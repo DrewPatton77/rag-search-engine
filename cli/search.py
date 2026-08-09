@@ -58,3 +58,11 @@ def inv_df_command(term: str) -> None:
     iindex.load()
     inv_df = iindex.get_inv_df_score(term)
     print(f"Inverse document frequency of '{term}': {inv_df:.2f}")
+
+def tfidf_command(doc_id: int, term: str) -> None:
+    iindex = InvertedIndex()
+    iindex.load()
+    tf = iindex.get_tf(doc_id, term)
+    inv_df = iindex.get_inv_df_score(term)
+    tfidf = tf * inv_df
+    print(f"TF-IDF score of '{term}' in document '{doc_id}:' {tfidf:.2f}")
