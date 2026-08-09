@@ -1,5 +1,6 @@
 import json
 from search_functions import load_movies, tokenize, load_stopwords
+from nltk.stem import PorterStemmer
 
 def filter_tokens(tokens: list[str]) -> list[str]:
     stopwords: list[str] = load_stopwords()
@@ -16,6 +17,13 @@ def has_matching_token(query_tokens: list[str], title_tokens: list[str]) -> bool
                 return True
     return False
 
+def stem_token(tokens: list[str]) -> list[str]:
+    stemmer = PorterStemmer() # Create an instance of PorterStemmer
+
+    stemmed_tokens = []
+    for token in tokens:
+        stemmed_tokens.append(stemmer.stem(token))
+    return stemmed_tokens
 
 def search_command(query: str) -> list[str]:
 
@@ -23,8 +31,8 @@ def search_command(query: str) -> list[str]:
 
     movies_in_query = []
     for movie in data['movies']:
-        query_tokens: list[str] = filter_tokens(tokenize(query))
-        title_tokens: list[str] = filter_tokens(tokenize(movie['title']))
+        query_tokens: list[str] = stem_token(filter_tokens(tokenize(query)))
+        title_tokens: list[str] = stem_token(filter_tokens(tokenize(movie['title'])))
         if has_matching_token(query_tokens, title_tokens) and movie['title'] not in movies_in_query:
             movies_in_query.append(movie['title'])
 
