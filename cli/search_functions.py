@@ -79,6 +79,18 @@ class InvertedIndex():
 
         return math.log((total_doc_count + 1) / (term_match_doc_count + 1))
 
+    def get_bm25(self, term: str) -> float:
+        term = single_token(term)
+
+        N: int = len(self.docmap)
+        doc_ids = self.docmap.keys()
+        df: int = 0
+        for doc_id in doc_ids:
+            if self.get_tf(doc_id, term) != 0:
+                df += 1
+
+        return math.log((N - df + 0.5) / (df + 0.5) + 1)
+
 
 DATA_PATH = "Data/movies.json"
 STOPWORDS_PATH = "Data/stopwords.txt"

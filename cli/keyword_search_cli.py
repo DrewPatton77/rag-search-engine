@@ -1,5 +1,5 @@
 import argparse
-from search import search_command, build_command, tf_command, inv_df_command, tfidf_command
+from search import *
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -20,6 +20,10 @@ def main() -> None:
     tf_inv_df_parser = subparsers.add_parser("tfidf", help="Get the product of the term-frequency and inverse document frequency score")
     tf_inv_df_parser.add_argument("doc_id", type=int, help="The document id")
     tf_inv_df_parser.add_argument("term", type=str, help="The term to use for the tfidf score")
+
+    bm25_parser = subparsers.add_parser("bm25idf", help="Get the bm25 inverse document frequency score")
+    bm25_parser.add_argument("term", type=str, help="The term to use to calculate the bm25 inverse document frequency score")
+
     args = parser.parse_args()
 
     match args.command:
@@ -52,6 +56,11 @@ def main() -> None:
             doc_id = args.doc_id
             term = args.term
             tfidf_command(doc_id, term)
+
+        case "bm25idf":
+            term = args.term
+            bm25 = bm25_command(term)
+            print(f"BM25 Inv-DF score of '{args.term}': {bm25:.2f}")
 
         case _:
             parser.print_help()
