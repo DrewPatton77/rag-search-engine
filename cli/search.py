@@ -1,6 +1,8 @@
 import json
-from search_functions import load_movies, tokenize, load_stopwords
+from search_functions import load_movies, tokenize, load_stopwords, InvertedIndex
 from nltk.stem import PorterStemmer
+import pickle
+
 
 def filter_tokens(tokens: list[str]) -> list[str]:
     stopwords: list[str] = load_stopwords()
@@ -37,3 +39,10 @@ def search_command(query: str) -> list[str]:
             movies_in_query.append(movie['title'])
 
     return movies_in_query
+
+def build_command():
+    iindex = InvertedIndex()
+    iindex.build()
+    iindex.save()
+    docs = iindex.get_documents('merida')
+    print(f"First document for token 'merida' = {docs[0]}")
