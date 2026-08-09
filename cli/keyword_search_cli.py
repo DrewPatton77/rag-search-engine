@@ -1,6 +1,6 @@
 import argparse
 from search import *
-from search_functions import BM25_K1
+from search_functions import BM25_K1, BM25_B
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -29,6 +29,7 @@ def main() -> None:
     bm25_tf_parser.add_argument("doc_id", type=int, help="The document id")
     bm25_tf_parser.add_argument("term", type=str, help="The term to use to calculate the term frequency saturation score for a given document id")
     bm25_tf_parser.add_argument("k1", type=float, nargs="?", default=BM25_K1, help="Tunable BM25 K1 parameter")
+    bm25_tf_parser.add_argument("b", type=float, nargs="?", default=BM25_B, help="Tunable BM25 b parameter")
 
     args = parser.parse_args()
 
@@ -72,7 +73,8 @@ def main() -> None:
             doc_id = args.doc_id
             term = args.term
             k1 = args.k1
-            bm25tf = bm25tf_command(doc_id, term, k1)
+            b = args.b
+            bm25tf = bm25tf_command(doc_id, term, k1, b)
             print(f"BM25 TF score of '{args.term}' in document '{args.doc_id}': {bm25tf:.2f}")
 
 

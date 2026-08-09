@@ -18,6 +18,7 @@ class InvertedIndex():
         self.index: Dict[str , set[int]] = {}
         self.docmap: Dict[str, Movie] = {}
         self.term_frequencies: Dict[int, Counter] = {}
+        self.doc_lengths: Dict[int, int] = {}
 
     def __add_document(self, doc_id: int, text: str) -> None:
         tokens = stem_token(filter_token(tokenize(text)))
@@ -28,6 +29,7 @@ class InvertedIndex():
             self.index[token].add(doc_id)
             counts.update([token])
         self.term_frequencies[doc_id] = counts
+        self.doc_lengths[doc_id] = sum(counts.values())
 
     def get_documents(self, term: str) -> list[int]:
         try:
@@ -50,6 +52,8 @@ class InvertedIndex():
             pickle.dump(self.docmap, f)
         with open(CACHE_TERM_FREQUENCY_PATH, 'wb') as f:
             pickle.dump(self.term_frequencies, f)
+        with open(CACHE_DOCLENGTHS_PATH, 'wb') as f:
+            pickle.dump(self.doc_lengths, f)
 
     def load(self) -> None:
         try:
@@ -59,6 +63,8 @@ class InvertedIndex():
                 self.docmap = pickle.load(f)
             with open(CACHE_TERM_FREQUENCY_PATH, 'rb') as f:
                 self.term_frequencies = pickle.load(f)
+            with open(CACHE_DOCLENGTHS_PATH, 'rb') as f:
+                self.doc_lengths = pickle.load(f)
         except:
             print("Error: File does not exist")
             sys.exit(1)
@@ -91,17 +97,28 @@ class InvertedIndex():
 
         return math.log((N - df + 0.5) / (df + 0.5) + 1)
 
-    def get_bm25_tf(self, doc_id: int, term: str, k1: float = 1.5) -> float:
-        tf = self.get_tf(doc_id, term)
-        return (tf * (k1 + 1)) / (tf + k1)
+    def get_bm25_tf(self, doc_id: int, term: str, k1: float = 1.5, b: float = 0.75) -> float:
+        doc_length = self.doc_lengths[doc_id]
+        avg_doc_length = self.__get_avg_doc_length()
+        length_normalization = 1 - b + b * (doc_length / avg_doc_length)
 
+        tf = self.get_tf(doc_id, term)
+        return (tf * (k1 + 1)) / (tf + k1 * length_normalization)
+
+    def __get_avg_doc_length(self) -> float:
+        if self.docmap == {}:
+            print('Warning: Zero documents. Try building the inverse index.')
+            return 0.0
+        return sum(self.doc_lengths.values()) / len(self.doc_lengths)
 
 DATA_PATH = "Data/movies.json"
 STOPWORDS_PATH = "Data/stopwords.txt"
 CACHE_INDEX_PATH = "cache/index.pkl"
 CACHE_DOCMAP_PATH = "cache/docmap.pkl"
 CACHE_TERM_FREQUENCY_PATH = "cache/term_frequencie.pkl"
+CACHE_DOCLENGTHS_PATH = "cache/doc_lengths.pkl"
 BM25_K1 = 1.5
+BM25_B = 0.75
 
 
 def load_movies() -> list[Movie]:
