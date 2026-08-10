@@ -1,6 +1,7 @@
 import argparse
 from sentence_transformers import SentenceTransformer
 from semantic_search import *
+import constants
 
 
 def main() -> None:

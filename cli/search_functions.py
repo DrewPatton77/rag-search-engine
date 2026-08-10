@@ -7,6 +7,7 @@ from typing import Any, TypedDict
 import pickle
 import sys
 import math
+import constants
 
 class Movie(TypedDict):
     id: int
@@ -46,24 +47,24 @@ class InvertedIndex():
             self.docmap[movie["id"]] = movie
 
     def save(self) -> None:
-        with open(CACHE_INDEX_PATH, 'wb') as f:
+        with open(constants.CACHE_INDEX_PATH, 'wb') as f:
             pickle.dump(self.index, f)
-        with open(CACHE_DOCMAP_PATH, 'wb') as f:
+        with open(constants.CACHE_DOCMAP_PATH, 'wb') as f:
             pickle.dump(self.docmap, f)
-        with open(CACHE_TERM_FREQUENCY_PATH, 'wb') as f:
+        with open(constants.CACHE_TERM_FREQUENCY_PATH, 'wb') as f:
             pickle.dump(self.term_frequencies, f)
-        with open(CACHE_DOCLENGTHS_PATH, 'wb') as f:
+        with open(constants.CACHE_DOCLENGTHS_PATH, 'wb') as f:
             pickle.dump(self.doc_lengths, f)
 
     def load(self) -> None:
         try:
-            with open(CACHE_INDEX_PATH, 'rb') as f:
+            with open(constants.CACHE_INDEX_PATH, 'rb') as f:
                 self.index = pickle.load(f)
-            with open(CACHE_DOCMAP_PATH, 'rb') as f:
+            with open(constants.CACHE_DOCMAP_PATH, 'rb') as f:
                 self.docmap = pickle.load(f)
-            with open(CACHE_TERM_FREQUENCY_PATH, 'rb') as f:
+            with open(constants.CACHE_TERM_FREQUENCY_PATH, 'rb') as f:
                 self.term_frequencies = pickle.load(f)
-            with open(CACHE_DOCLENGTHS_PATH, 'rb') as f:
+            with open(constants.CACHE_DOCLENGTHS_PATH, 'rb') as f:
                 self.doc_lengths = pickle.load(f)
         except:
             print("Error: File does not exist")
@@ -97,7 +98,7 @@ class InvertedIndex():
 
         return math.log((N - df + 0.5) / (df + 0.5) + 1)
 
-    def get_bm25_tf(self, doc_id: int, term: str, k1: float = 1.5, b: float = 0.75) -> float:
+    def get_bm25_tf(self, doc_id: int, term: str, k1: float = constants.BM25_K1, b: float = constants.BM25_B) -> float:
         doc_length = self.doc_lengths[doc_id]
         avg_doc_length = self.__get_avg_doc_length()
         length_normalization = 1 - b + b * (doc_length / avg_doc_length)
@@ -112,7 +113,7 @@ class InvertedIndex():
         return sum(self.doc_lengths.values()) / len(self.doc_lengths)
 
     def bm25(self, doc_id: int, term: str) -> float:
-        bm25_tf = self.get_bm25_tf(doc_id, term, k1=1.5, b=0.75)
+        bm25_tf = self.get_bm25_tf(doc_id, term, k1=constants.BM25_K1, b=constants.BM25_B)
         bm25_inv_df = self.get_bm25_inv_df(term)
         return bm25_tf * bm25_inv_df
 
@@ -137,21 +138,8 @@ class InvertedIndex():
         self.score = dict(sorted(score.items(), key= lambda item: item[1], reverse=True))
 
 
-
-
-
-DATA_PATH = "Data/movies.json"
-STOPWORDS_PATH = "Data/stopwords.txt"
-CACHE_INDEX_PATH = "cache/index.pkl"
-CACHE_DOCMAP_PATH = "cache/docmap.pkl"
-CACHE_TERM_FREQUENCY_PATH = "cache/term_frequencie.pkl"
-CACHE_DOCLENGTHS_PATH = "cache/doc_lengths.pkl"
-BM25_K1 = 1.5
-BM25_B = 0.75
-
-
 def load_movies() -> list[Movie]:
-    with open(DATA_PATH, "r") as f:
+    with open(constants.DATA_PATH, "r") as f:
         data = f.read()
     return json.loads(data)
 
@@ -163,7 +151,7 @@ def tokenize(text: str) -> list[str]:
     return preprocess_text(text).split()
 
 def load_stopwords() -> list[str]:
-    with open(STOPWORDS_PATH, "r") as f:
+    with open(constants.STOPWORDS_PATH, "r") as f:
         stopwords_preprocessed= f.read().splitlines()
     stopwords = []
     for stopword in stopwords_preprocessed:

@@ -1,6 +1,6 @@
 import argparse
 from search import *
-from search_functions import BM25_K1, BM25_B
+import constants
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -28,8 +28,8 @@ def main() -> None:
     bm25_tf_parser = subparsers.add_parser("bm25tf", help="Get the term frequency saturation score for a given term and document id")
     bm25_tf_parser.add_argument("doc_id", type=int, help="The document id")
     bm25_tf_parser.add_argument("term", type=str, help="The term to use to calculate the term frequency saturation score for a given document id")
-    bm25_tf_parser.add_argument("k1", type=float, nargs="?", default=BM25_K1, help="Tunable BM25 K1 parameter")
-    bm25_tf_parser.add_argument("b", type=float, nargs="?", default=BM25_B, help="Tunable BM25 b parameter")
+    bm25_tf_parser.add_argument("k1", type=float, nargs="?", default=constants.BM25_K1, help="Tunable BM25 K1 parameter")
+    bm25_tf_parser.add_argument("b", type=float, nargs="?", default=constants.BM25_B, help="Tunable BM25 b parameter")
 
     bm25search_parser = subparsers.add_parser("bm25search", help="Search movies using full BM25 scoring")
     bm25search_parser.add_argument("query", type=str, help="Search query")

@@ -1,0 +1,9 @@
+DATA_PATH = "Data/movies.json"
+STOPWORDS_PATH = "Data/stopwords.txt"
+CACHE_INDEX_PATH = "cache/index.pkl"
+CACHE_DOCMAP_PATH = "cache/docmap.pkl"
+CACHE_TERM_FREQUENCY_PATH = "cache/term_frequencie.pkl"
+CACHE_DOCLENGTHS_PATH = "cache/doc_lengths.pkl"
+CACHE_MOVIE_EMBEDDINGS_PATH = "cache/movie_embeddings.npy"
+BM25_K1 = 1.5
+BM25_B = 0.75
