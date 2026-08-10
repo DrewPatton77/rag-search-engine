@@ -110,44 +110,39 @@ def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
 
     return dot_product / prod_norm
 
+def chunk_overlap(tokens: list[str], chunk_size: int, overlap: int = 0):
+    num_tokens = len(tokens)
+    i = 0
+    chunks = []
+    while i < num_tokens:
+        chunk_tokens = tokens[i : i + chunk_size]
+        if chunks and len(chunk_tokens) <= overlap:
+            break
+
+        chunks.append(chunk_tokens)
+        i += chunk_size - overlap
+    return chunks
+
 def chunk_text(text: str, chunk_size: int = 200, overlap: int = 0) -> None:
     text_len = len(text)
-    text_split = text.split(" ")
+    words = text.split(" ")
     if overlap <= 0:
-        text_chunks = [text_split[i:i + chunk_size] for i in range(0, len(text_split), chunk_size)]
+        word_chunks = [words[i:i + chunk_size] for i in range(0, len(words), chunk_size)]
     else:
-
-        text_chunks = []
-        for i in range(0, len(text_split), chunk_size):
-            coef: int = int(i / chunk_size)
-            shift: int = chunk_size - overlap
-            text_chunk = text_split[coef * shift: (coef * shift) + chunk_size]
-            text_chunks.append(text_chunk)
-            if i + chunk_size >= len(text_split):
-                text_chunk = text_split[(coef + 1) * shift: ((coef + 1) * shift) + chunk_size]
-                text_chunks.append(text_chunk)
+        word_chunks = chunk_overlap(words, chunk_size, overlap=overlap)
 
     print(f"Chunking {text_len} characters")
-    for i in range(0,len(text_chunks)):
-        print(f"{i + 1}. {" ".join(text_chunks[i])}")
+    for i in range(0,len(word_chunks)):
+        print(f"{i + 1}. {" ".join(word_chunks[i])}")
 
 def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) -> None:
     text_len = len(text)
-    text_split = re.split(r"(?<=[.!?])\s+", text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
     if overlap <= 0:
-        text_chunks = [text_split[i:i + max_chunk_size] for i in range(0, len(text_split), max_chunk_size)]
+        sentence_chunks = [sentences[i:i + max_chunk_size] for i in range(0, len(sentences), max_chunk_size)]
     else:
-
-        text_chunks = []
-        for i in range(0, len(text_split), max_chunk_size):
-            coef: int = int(i / max_chunk_size)
-            shift: int = max_chunk_size - overlap
-            text_chunk = text_split[coef * shift: (coef * shift) + max_chunk_size]
-            text_chunks.append(text_chunk)
-            if i + max_chunk_size >= len(text_split) and i != 0:
-                text_chunk = text_split[(coef + 1) * shift: ((coef + 1) * shift) + max_chunk_size]
-                text_chunks.append(text_chunk)
+        sentence_chunks = chunk_overlap(sentences, max_chunk_size, overlap=overlap)
 
     print(f"Semantically chunking {text_len} characters")
-    for i in range(0,len(text_chunks)):
-        print(f"{i + 1}. {" ".join(text_chunks[i])}")
+    for i in range(0,len(sentence_chunks)):
+        print(f"{i + 1}. {" ".join(sentence_chunks[i])}")
