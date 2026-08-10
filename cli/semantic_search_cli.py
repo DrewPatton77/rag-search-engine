@@ -32,6 +32,8 @@ def main() -> None:
     semantic_chunk_parser.add_argument("-m", "--max-chunk-size", type=int, nargs="?", default=4, help="The maximum chunks size a chunk is allowed to be")
     semantic_chunk_parser.add_argument("-o", "--overlap", type=int, nargs="?", default=0, help="How much overlap each chunk should share")
 
+    embed_chunks_parser = subparsers.add_parser("embed_chunks", help="Embeds chunked movie descriptions")
+
     args = parser.parse_args()
 
 
@@ -87,6 +89,8 @@ def main() -> None:
             text = args.text
             semantic_chunk_text(text, max_chunk_size, overlap)
 
+        case "embed_chunks":
+            embed_chunks()
 
         case _:
             parser.print_help()
