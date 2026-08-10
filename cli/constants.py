@@ -5,5 +5,7 @@ CACHE_DOCMAP_PATH = "cache/docmap.pkl"
 CACHE_TERM_FREQUENCY_PATH = "cache/term_frequencie.pkl"
 CACHE_DOCLENGTHS_PATH = "cache/doc_lengths.pkl"
 CACHE_MOVIE_EMBEDDINGS_PATH = "cache/movie_embeddings.npy"
+CACHE_CHUNK_EMBEDDINGS_PATH = "cache/chunk_embeddings.npy"
+CACHE_CHUNK_METADATA_PATH = "cache/chunk_metadata.json"
 BM25_K1 = 1.5
 BM25_B = 0.75
