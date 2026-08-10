@@ -12,13 +12,14 @@ class SemanticSearch:
         self.document_map = {}
 
     def generate_embedding(self, text: str):
-        if text.strip() == "":
+        text = text.strip()
+        if text == "":
             raise ValueError("The text is empty")
 
-        embedding = self.model.encode([text], show_progress_bar = True)
+        embedding = self.model.encode([text])
         return embedding[0]
 
-    def build_embeddings(self, documents):
+    def build_embeddings(self, documents: Movie):
         self.documents = documents
         document_list = []
         for document in documents:
@@ -32,7 +33,7 @@ class SemanticSearch:
 
         return self.embeddings
 
-    def load_or_create_embeddings(self, documents):
+    def load_or_create_embeddings(self, documents: Movie):
         self.documents = documents
         for document in documents:
             self.document_map[document['id']] = document
@@ -45,19 +46,19 @@ class SemanticSearch:
 
         return self.build_embeddings(documents)
 
-def verify_model():
+def verify_model() -> None:
     sems = SemanticSearch()
     print(f"Model loaded: {sems.model}")
     print(f"Max sequence length: {sems.model.max_seq_length}")
 
-def embed_text(text: str):
+def embed_text(text: str) -> None:
     sems = SemanticSearch()
     embedding = sems.generate_embedding(text)
     print(f"Text: {text}")
     print(f"First 3 dimensions: {embedding[:3]}")
     print(f"Dimensions: {embedding.shape[0]}")
 
-def verify_embeddings():
+def verify_embeddings() -> None:
     sems = SemanticSearch()
     documents = load_movies()
     movies = documents['movies']
@@ -66,3 +67,10 @@ def verify_embeddings():
     print(
         f"Embeddings shape: {sems.embeddings.shape[0]} vectors in {sems.embeddings.shape[1]} dimensions"
     )
+
+def embed_query_text(query: str) -> None:
+    sems = SemanticSearch()
+    embedding = sems.generate_embedding(query)
+    print(f"Query: {query}")
+    print(f"First 3 dimensions: {embedding[:3]}")
+    print(f"Shape: {embedding.shape}")

@@ -15,6 +15,9 @@ def main() -> None:
 
     verify_embeddings_parser = subparsers.add_parser("verify_embeddings", help="verifies if the movie embeddings were completed successfully")
 
+    embed_query_parser = subparsers.add_parser("embed_query", help="Embeds the query text as a vector in the embedding space")
+    embed_query_parser.add_argument("query", type=str, help="Text to be embedded")
+
     args = parser.parse_args()
 
 
@@ -34,6 +37,10 @@ def main() -> None:
 
         case "verify_embeddings":
             verify_embeddings()
+
+        case "embed_query":
+            query = args.query
+            embed_query_text(query)
 
         case _:
             parser.print_help()
