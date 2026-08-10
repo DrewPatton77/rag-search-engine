@@ -3,6 +3,8 @@ import numpy as np
 import os
 import constants
 from search_functions import load_movies, Movie
+import re
+import math
 
 class SemanticSearch:
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
@@ -114,13 +116,38 @@ def chunk_text(text: str, chunk_size: int = 200, overlap: int = 0) -> None:
     if overlap <= 0:
         text_chunks = [text_split[i:i + chunk_size] for i in range(0, len(text_split), chunk_size)]
     else:
+
         text_chunks = []
-        for i in range(0,len(text_split), chunk_size):
-            if i == 0:
-                text_chunk = text_split[i: i + chunk_size]
-            else:
-                text_chunk = text_split[i - overlap: i - overlap + chunk_size]
+        for i in range(0, len(text_split), chunk_size):
+            coef: int = int(i / chunk_size)
+            shift: int = chunk_size - overlap
+            text_chunk = text_split[coef * shift: (coef * shift) + chunk_size]
             text_chunks.append(text_chunk)
+            if i + chunk_size >= len(text_split):
+                text_chunk = text_split[(coef + 1) * shift: ((coef + 1) * shift) + chunk_size]
+                text_chunks.append(text_chunk)
+
     print(f"Chunking {text_len} characters")
+    for i in range(0,len(text_chunks)):
+        print(f"{i + 1}. {" ".join(text_chunks[i])}")
+
+def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) -> None:
+    text_len = len(text)
+    text_split = re.split(r"(?<=[.!?])\s+", text)
+    if overlap <= 0:
+        text_chunks = [text_split[i:i + max_chunk_size] for i in range(0, len(text_split), max_chunk_size)]
+    else:
+
+        text_chunks = []
+        for i in range(0, len(text_split), max_chunk_size):
+            coef: int = int(i / max_chunk_size)
+            shift: int = max_chunk_size - overlap
+            text_chunk = text_split[coef * shift: (coef * shift) + max_chunk_size]
+            text_chunks.append(text_chunk)
+            if i + max_chunk_size >= len(text_split) and i != 0:
+                text_chunk = text_split[(coef + 1) * shift: ((coef + 1) * shift) + max_chunk_size]
+                text_chunks.append(text_chunk)
+
+    print(f"Semantically chunking {text_len} characters")
     for i in range(0,len(text_chunks)):
         print(f"{i + 1}. {" ".join(text_chunks[i])}")
