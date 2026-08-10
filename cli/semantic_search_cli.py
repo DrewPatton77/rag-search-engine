@@ -18,6 +18,10 @@ def main() -> None:
     embed_query_parser = subparsers.add_parser("embed_query", help="Embeds the query text as a vector in the embedding space")
     embed_query_parser.add_argument("query", type=str, help="Text to be embedded")
 
+    search_parser = subparsers.add_parser("search", help="Does a semantic search")
+    search_parser.add_argument("query", type=str, help="The query to do a semantic search on")
+    search_parser.add_argument("-l", "--limit", nargs="?", const=5, help="The number of movies to return")
+
     args = parser.parse_args()
 
 
@@ -41,6 +45,25 @@ def main() -> None:
         case "embed_query":
             query = args.query
             embed_query_text(query)
+
+        case "search":
+            query = args.query
+            limit = args.limit
+            sems = SemanticSearch()
+            documents = load_movies()
+            movies = documents['movies']
+            sems.load_or_create_embeddings(movies)
+            if limit != None:
+                top_results = sems.search(query, limit)
+            else:
+                top_results = sems.search(query)
+
+            for i in range(0,len(top_results)):
+                result = top_results[i]
+                print(
+                    f"{i + 1}. {result['title']} (score: {result['score']})\n  {result['description']}"
+                )
+                print("")
 
         case _:
             parser.print_help()
