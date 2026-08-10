@@ -5,6 +5,7 @@ import constants
 from search_functions import load_movies, Movie
 import re
 import math
+import json
 
 class SemanticSearch:
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
@@ -69,6 +70,67 @@ class SemanticSearch:
             })
         return top_results
 
+
+class ChunkedSemanticSearch(SemanticSearch):
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2") -> None:
+        super().__init__(model_name)
+        self.chunk_embeddings = None
+        self.chunk_metadata = None
+
+    def build_chunk_embeddings(self, documents: list[dict]) -> np.ndarray:
+        self.documents = documents
+        document_list = []
+        for document in documents:
+            self.document_map[document['id']] = document
+            document_list.append(f"{document['title']}: {document['description']}")
+
+        all_chunks: list[str] = []
+        chunk_metadata: list[dict] = []
+
+        for document in documents:
+
+            if len(document["description"].strip()) == 0:
+                continue
+
+            sentence_chunks = semantic_chunk_text(document["description"], max_chunk_size=4, overlap=1)
+
+            for i in range(0, len(sentence_chunks)):
+                all_chunks.append(sentence_chunks[i])
+                chunk_metadata.append(
+                    {
+                        "movie_idx": document['id'],
+                        "chunk_idx": i,
+                        "total_chunks": len(sentence_chunks)
+                    }
+                )
+
+        self.chunk_embeddings = self.model.encode(all_chunks, show_progress_bar = True)
+        self.chunk_metadata = chunk_metadata
+
+        with open(constants.CACHE_CHUNK_EMBEDDINGS_PATH, 'wb') as f:
+            np.save(f, self.chunk_embeddings)
+
+        with open(constants.CACHE_CHUNK_METADATA_PATH, 'w') as f:
+            json.dump({"chunks": self.chunk_metadata, "total_chunks": len(all_chunks)}, f, indent=2)
+
+        return self.chunk_embeddings
+
+    def load_or_create_chunk_embeddings(self, documents: list[dict]) -> np.ndarray:
+        self.documents = documents
+        document_list = []
+        for document in documents:
+            self.document_map[document['id']] = document
+            document_list.append(f"{document['title']}: {document['description']}")
+
+        if os.path.exists(constants.CACHE_CHUNK_EMBEDDINGS_PATH) and os.path.exists(constants.CACHE_CHUNK_METADATA_PATH):
+            with open(constants.CACHE_CHUNK_EMBEDDINGS_PATH, 'rb') as f:
+                self.chunk_embeddings = np.load(f)
+            with open(constants.CACHE_CHUNK_METADATA_PATH, 'r') as f:
+                self.chunk_metadata = json.load(f)
+
+            return self.chunk_embeddings
+
+        return self.build_chunk_embeddings(documents)
 
 
 def verify_model() -> None:
@@ -135,14 +197,26 @@ def chunk_text(text: str, chunk_size: int = 200, overlap: int = 0) -> None:
     for i in range(0,len(word_chunks)):
         print(f"{i + 1}. {" ".join(word_chunks[i])}")
 
-def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) -> None:
+def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) -> list[str]:
     text_len = len(text)
     sentences = re.split(r"(?<=[.!?])\s+", text)
     if overlap <= 0:
-        sentence_chunks = [sentences[i:i + max_chunk_size] for i in range(0, len(sentences), max_chunk_size)]
+        sentence_chunks_unjoined = [sentences[i:i + max_chunk_size] for i in range(0, len(sentences), max_chunk_size)]
     else:
-        sentence_chunks = chunk_overlap(sentences, max_chunk_size, overlap=overlap)
+        sentence_chunks_unjoined = chunk_overlap(sentences, max_chunk_size, overlap=overlap)
 
-    print(f"Semantically chunking {text_len} characters")
-    for i in range(0,len(sentence_chunks)):
-        print(f"{i + 1}. {" ".join(sentence_chunks[i])}")
+    sentence_chunks: list[str] = []
+    for i in range(0, len(sentence_chunks_unjoined)):
+        sentence_chunks.append(" ".join(sentence_chunks_unjoined[i]))
+    #print(f"Semantically chunking {text_len} characters")
+    #for i in range(0, len(sentence_chunks)):
+    #    print(f"{i + 1}. {" ".join(sentence_chunks[i])}")
+    return sentence_chunks
+
+def embed_chunks():
+    chunked_sems = ChunkedSemanticSearch()
+    documents = load_movies()
+    movies = documents['movies']
+    embeddings = chunked_sems.load_or_create_chunk_embeddings(movies)
+
+    print(f"Generated {len(embeddings)} chunked embeddings")
