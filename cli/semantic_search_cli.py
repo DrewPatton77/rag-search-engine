@@ -20,7 +20,12 @@ def main() -> None:
 
     search_parser = subparsers.add_parser("search", help="Does a semantic search")
     search_parser.add_argument("query", type=str, help="The query to do a semantic search on")
-    search_parser.add_argument("-l", "--limit", nargs="?", const=5, help="The number of movies to return")
+    search_parser.add_argument("-l", "--limit", type=int, nargs="?", default=5, help="The number of movies to return")
+
+    chunk_parser = subparsers.add_parser("chunk", help="Chunks according to a set size")
+    chunk_parser.add_argument("text", type=str, help="The text to chunk")
+    chunk_parser.add_argument("-cs","--chunk-size", type=int, nargs="?", default=200, help="The set chunk-size")
+
 
     args = parser.parse_args()
 
@@ -64,6 +69,17 @@ def main() -> None:
                     f"{i + 1}. {result['title']} (score: {result['score']})\n  {result['description']}"
                 )
                 print("")
+
+        case "chunk":
+            chunk_size = args.chunk_size
+            text = args.text
+            text_len = len(text)
+            text_split = text.split(" ")
+            text_chunks = [text_split[i:i + chunk_size] for i in range(0, len(text_split), chunk_size)]
+
+            print(f"Chunking {text_len} characters")
+            for i in range(0,len(text_chunks)):
+                print(f"{i + 1}. {" ".join(text_chunks[i])}")
 
         case _:
             parser.print_help()
