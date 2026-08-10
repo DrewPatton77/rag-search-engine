@@ -2,6 +2,7 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
 import constants
+from search_functions import load_movies, Movie
 
 class SemanticSearch:
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
@@ -24,7 +25,7 @@ class SemanticSearch:
             self.document_map[document['id']] = document
             document_list.append(f"{document['title']}: {document['description']}")
 
-        self.embeddings = self.generate_embedding(document_list)
+        self.embeddings = self.model.encode(document_list, show_progress_bar = True)
 
         with open(constants.CACHE_MOVIE_EMBEDDINGS_PATH, 'wb') as f:
             np.save(f, self.embeddings)
@@ -58,3 +59,10 @@ def embed_text(text: str):
 
 def verify_embeddings():
     sems = SemanticSearch()
+    documents = load_movies()
+    movies = documents['movies']
+    sems.load_or_create_embeddings(movies)
+    print(f"Number of docs: {len(movies)}")
+    print(
+        f"Embeddings shape: {sems.embeddings.shape[0]} vectors in {sems.embeddings.shape[1]} dimensions"
+    )
