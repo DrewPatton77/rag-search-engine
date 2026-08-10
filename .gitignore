@@ -12,4 +12,3 @@ wheels/
 # Other
 /data/
 /cache/
-uv.lock
