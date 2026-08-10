@@ -25,7 +25,12 @@ def main() -> None:
     chunk_parser = subparsers.add_parser("chunk", help="Chunks according to a set size")
     chunk_parser.add_argument("text", type=str, help="The text to chunk")
     chunk_parser.add_argument("-cs","--chunk-size", type=int, nargs="?", default=200, help="The set chunk-size")
-    chunk_parser.add_argument("-o", "--overlap", type=int, nargs="?", default=0, help="How much each chunk should overlap")
+    chunk_parser.add_argument("-o", "--overlap", type=int, nargs="?", default=0, help="How much overlap each chunk should share")
+
+    semantic_chunk_parser = subparsers.add_parser("semantic_chunk", help="Chunks according to sentence structure to preserve the natural language context")
+    semantic_chunk_parser.add_argument("text", type=str, help="The text to chunk")
+    semantic_chunk_parser.add_argument("-m", "--max-chunk-size", type=int, nargs="?", default=4, help="The maximum chunks size a chunk is allowed to be")
+    semantic_chunk_parser.add_argument("-o", "--overlap", type=int, nargs="?", default=0, help="How much overlap each chunk should share")
 
     args = parser.parse_args()
 
@@ -75,6 +80,12 @@ def main() -> None:
             overlap = args.overlap
             text = args.text
             chunk_text(text, chunk_size, overlap)
+
+        case "semantic_chunk":
+            max_chunk_size = args.max_chunk_size
+            overlap = args.overlap
+            text = args.text
+            semantic_chunk_text(text, max_chunk_size, overlap)
 
 
         case _:
