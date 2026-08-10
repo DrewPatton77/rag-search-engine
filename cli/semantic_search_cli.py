@@ -9,6 +9,9 @@ def main() -> None:
 
     verify_parser = subparsers.add_parser("verify", help="Print model information to verify that the embedding model is loaded")
 
+    embed_text_parser = subparsers.add_parser("embed_text", help="Embeds given text")
+    embed_text_parser.add_argument("text", type=str, help="Text to be embedded")
+
     args = parser.parse_args()
 
 
@@ -17,6 +20,12 @@ def main() -> None:
 
         case "verify":
             verify_model()
+
+            pass
+
+        case "embed_text":
+            text = args.text
+            embed_text(text)
 
             pass
 
