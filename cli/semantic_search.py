@@ -107,3 +107,20 @@ def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
         return 0.0
 
     return dot_product / prod_norm
+
+def chunk_text(text: str, chunk_size: int = 200, overlap: int = 0) -> None:
+    text_len = len(text)
+    text_split = text.split(" ")
+    if overlap <= 0:
+        text_chunks = [text_split[i:i + chunk_size] for i in range(0, len(text_split), chunk_size)]
+    else:
+        text_chunks = []
+        for i in range(0,len(text_split), chunk_size):
+            if i == 0:
+                text_chunk = text_split[i: i + chunk_size]
+            else:
+                text_chunk = text_split[i - overlap: i - overlap + chunk_size]
+            text_chunks.append(text_chunk)
+    print(f"Chunking {text_len} characters")
+    for i in range(0,len(text_chunks)):
+        print(f"{i + 1}. {" ".join(text_chunks[i])}")
