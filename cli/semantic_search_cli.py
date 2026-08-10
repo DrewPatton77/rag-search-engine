@@ -13,6 +13,8 @@ def main() -> None:
     embed_text_parser = subparsers.add_parser("embed_text", help="Embeds given text")
     embed_text_parser.add_argument("text", type=str, help="Text to be embedded")
 
+    verify_embeddings_parser = subparsers.add_parser("verify_embeddings", help="verifies if the movie embeddings were completed successfully")
+
     args = parser.parse_args()
 
 
@@ -29,6 +31,9 @@ def main() -> None:
             embed_text(text)
 
             pass
+
+        case "verify_embeddings":
+            verify_embeddings()
 
         case _:
             parser.print_help()
