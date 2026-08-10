@@ -25,7 +25,7 @@ def main() -> None:
     chunk_parser = subparsers.add_parser("chunk", help="Chunks according to a set size")
     chunk_parser.add_argument("text", type=str, help="The text to chunk")
     chunk_parser.add_argument("-cs","--chunk-size", type=int, nargs="?", default=200, help="The set chunk-size")
-
+    chunk_parser.add_argument("-o", "--overlap", type=int, nargs="?", default=0, help="How much each chunk should overlap")
 
     args = parser.parse_args()
 
@@ -72,14 +72,10 @@ def main() -> None:
 
         case "chunk":
             chunk_size = args.chunk_size
+            overlap = args.overlap
             text = args.text
-            text_len = len(text)
-            text_split = text.split(" ")
-            text_chunks = [text_split[i:i + chunk_size] for i in range(0, len(text_split), chunk_size)]
+            chunk_text(text, chunk_size, overlap)
 
-            print(f"Chunking {text_len} characters")
-            for i in range(0,len(text_chunks)):
-                print(f"{i + 1}. {" ".join(text_chunks[i])}")
 
         case _:
             parser.print_help()
