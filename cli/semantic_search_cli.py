@@ -32,6 +32,10 @@ def main() -> None:
     semantic_chunk_parser.add_argument("-m", "--max-chunk-size", type=int, nargs="?", default=4, help="The maximum chunks size a chunk is allowed to be")
     semantic_chunk_parser.add_argument("-o", "--overlap", type=int, nargs="?", default=0, help="How much overlap each chunk should share")
 
+    search_chunked_parser = subparsers.add_parser("search_chunked", help="Searches for the chunks that have the best cosine similarity score with the query")
+    search_chunked_parser.add_argument("query", type=str, help="The query that to search from")
+    search_chunked_parser.add_argument("-l", "--limit", type=int, nargs="?", default=5, help="Number of results to return")
+
     embed_chunks_parser = subparsers.add_parser("embed_chunks", help="Embeds chunked movie descriptions")
 
     args = parser.parse_args()
@@ -91,6 +95,11 @@ def main() -> None:
 
         case "embed_chunks":
             embed_chunks()
+
+        case "search_chunked":
+            query = args.query
+            limit = args.limit
+            search_chunked(query, limit=limit)
 
         case _:
             parser.print_help()
