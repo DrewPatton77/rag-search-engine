@@ -32,6 +32,11 @@ def main() -> None:
             limit = args.limit
             weighted_search(query, alpha=alpha, limit=limit)
 
+        case "rrf-search":
+            query = args.query
+            k = args.k
+            limit = args.limit
+            rrf_search(query, k=k, limit=limit)
         case _:
             parser.print_help()
 
