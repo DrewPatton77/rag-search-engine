@@ -122,7 +122,10 @@ class InvertedIndex():
 
         docs_with_query = []
         for token in tokens:
-            docs_with_query.extend(self.get_documents(token))
+            docs = self.get_documents(token)
+            if docs == None:
+                continue
+            docs_with_query.extend(docs)
         docs_with_query = set(docs_with_query)
 
         score = {}
