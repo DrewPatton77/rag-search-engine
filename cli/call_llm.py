@@ -151,7 +151,7 @@ def get_user_prompt(query: str, method: str | None = None,  rerank_method: str |
 
         [2, 0, 3, 2, 0, 1]"""
 
-def RAG(query, docs):
+def RAG(query, titles):
     client, model = llm_init()
     user_prompt = f"""You are a RAG agent for Webflyx, a movie streaming service.
     Your task is to provide a natural-language answer to the user's query based on documents retrieved during search.
@@ -160,9 +160,28 @@ def RAG(query, docs):
     Query: {query}
 
     Documents:
-    {docs}
+    {titles}
 
     Answer:"""
     response = get_response(client, model, user_prompt)
 
+    return response
+
+def llm_summarize(query, titles):
+    client, model = llm_init()
+    user_prompt = f"""Provide information useful to the query below by synthesizing data from multiple search results in detail.
+
+    The goal is to provide comprehensive information so that users know what their options are.
+    Your response should be information-dense and concise, with several key pieces of information about the genre, plot, etc. of each movie.
+
+    This should be tailored to Webflyx users. Webflyx is a movie streaming service.
+
+    Query: {query}
+
+    Search results:
+    {titles}
+
+    Provide a comprehensive 3–4 sentence answer that combines information from multiple sources:"""
+
+    response = get_response(client, model, user_prompt)
     return response
