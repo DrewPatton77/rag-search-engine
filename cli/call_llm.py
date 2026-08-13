@@ -4,6 +4,16 @@ from openai import OpenAI
 import system_prompt
 
 def call_llm(query: str, method: str | None = None,  rerank_method: str | None = None, evaluate: bool | None = None, doc: dict | None = None, doc_list_str: str | None = None) -> str:
+
+    client, model = llm_init()
+
+    user_prompt = get_user_prompt(query, method=method, rerank_method=rerank_method, evaluate=evaluate, doc=doc, doc_list_str=doc_list_str)
+
+    response = get_response(client, model, user_prompt)
+
+    return response
+
+def llm_init():
     load_dotenv()
     api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
@@ -16,6 +26,25 @@ def call_llm(query: str, method: str | None = None,  rerank_method: str | None =
 
     model = "openrouter/free"
 
+    return client, model
+
+def get_response(client, model, user_prompt):
+    messages = [
+        {
+            "role": "user", "content": user_prompt,
+        }
+    ]
+    response = client.chat.completions.create(model=model, messages=messages)
+
+    print("Response:")
+    print(response.choices[0].message.content)
+    print("-----")
+    print(f"Prompt tokens: {response.usage.prompt_tokens}")
+    print(f"Response tokens: {response.usage.completion_tokens}")
+
+    return response.choices[0].message.content
+
+def get_user_prompt(query: str, method: str | None = None,  rerank_method: str | None = None, evaluate: bool | None = None, doc: dict | None = None, doc_list_str: str | None = None):
     if method == "spell":
         user_prompt = f"""
         Fix any spelling errors in the user-provided movie search query below.
@@ -122,17 +151,18 @@ def call_llm(query: str, method: str | None = None,  rerank_method: str | None =
 
         [2, 0, 3, 2, 0, 1]"""
 
-    messages = [
-        {
-            "role": "user", "content": user_prompt,
-        }
-    ]
-    response = client.chat.completions.create(model=model, messages=messages)
+def RAG(query, docs):
+    client, model = llm_init()
+    user_prompt = f"""You are a RAG agent for Webflyx, a movie streaming service.
+    Your task is to provide a natural-language answer to the user's query based on documents retrieved during search.
+    Provide a comprehensive answer that addresses the user's query.
 
-    print("Response:")
-    print(response.choices[0].message.content)
-    print("-----")
-    print(f"Prompt tokens: {response.usage.prompt_tokens}")
-    print(f"Response tokens: {response.usage.completion_tokens}")
+    Query: {query}
 
-    return response.choices[0].message.content
+    Documents:
+    {docs}
+
+    Answer:"""
+    response = get_response(client, model, user_prompt)
+
+    return response
