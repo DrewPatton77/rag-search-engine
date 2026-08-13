@@ -1,6 +1,6 @@
 import argparse
 from hybrid_search import *
-from test_llm import *
+from call_llm import *
 from time import sleep
 import json
 from sentence_transformers import CrossEncoder
