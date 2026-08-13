@@ -14,3 +14,4 @@ wheels/
 /data/
 /cache/
 .DS_Store
+cli/system_prompt.py
