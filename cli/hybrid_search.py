@@ -23,11 +23,11 @@ class HybridSearch:
 
     def weighted_search(self, query: str, alpha: float = 0.5, limit: int = 5):
         method = "min_max"
-        self.hybrid_scores_mapping(method, query, alpha=alpha, limit=limit)
+        return self.hybrid_scores_mapping(method, query, alpha=alpha, limit=limit)
 
     def rrf_search(self, query: str, k: int = 60, limit: int = 10) -> list[dict]:
         method = "rrf"
-        self.hybrid_scores_mapping(method, query, k=k, limit=limit)
+        return self.hybrid_scores_mapping(method, query, k=k, limit=limit)
 
     def hybrid_scores_mapping(self, method, query: str, alpha: float = 0.5, k: int = 60, limit: int = 10):
         if method == "None":
@@ -51,7 +51,9 @@ class HybridSearch:
         hybrid_scores_docmap = {}
         for id in self.idx.score:
             hybrid_scores_docmap[id] = {
-                'document': self.idx.docmap[id],
+                "id": id,
+                "title": self.idx.docmap[id]['title'],
+                'document': self.idx.docmap[id]['description'][:300],
                 'keyword_score': self.idx.score[id],
                 'semantic_score': 0.0,
             }
@@ -61,7 +63,9 @@ class HybridSearch:
             document = self.idx.docmap[id]
             if id not in hybrid_scores_docmap:
                 hybrid_scores_docmap[id] = {
-                    'document': document,
+                    "id": id,
+                    "title": self.idx.docmap[id]['title'],
+                    'document': self.idx.docmap[id]['description'][:300],
                     'keyword_score': 0.0,
                     'semantic_score': score,
                 }
@@ -77,18 +81,12 @@ class HybridSearch:
                 hybrid_scores_docmap[id]['hybrid_score'] = rrf_score(keyword_score) + rrf_score(semantic_score)
 
         sorted_data = dict(sorted(hybrid_scores_docmap.items(), key=lambda item: item[1]['hybrid_score'], reverse=True))
+        top_results = {}
         for i, id in enumerate(sorted_data):
             if i < limit:
-                if method == "rrf":
-                    print(f"{i + 1}. {sorted_data[id]['document']['title']}")
-                    print(f"RRF Score: {sorted_data[id]['hybrid_score']:.3f}")
-                    print(f"BM25 Rank: {sorted_data[id]['keyword_score']}, Semantic Rank: {sorted_data[id]['semantic_score']}")
-                    print(f"{sorted_data[id]['document']['description'][:100]}...")
-                if method == "min_max":
-                    print(f"{i + 1}. {sorted_data[id]['document']['title']}")
-                    print(f"Hybrid Score: {sorted_data[id]['hybrid_score']:.3f}")
-                    print(f"BM25: {sorted_data[id]['keyword_score']}, Semantic: {sorted_data[id]['semantic_score']}")
-                    print(f"{sorted_data[id]['document']['description'][:100]}...")
+                top_results[id] = sorted_data[id]
+        return top_results
+
 
 def min_max_norm_score(scores: list[int]) -> None:
     if len(scores) == 0:
@@ -139,4 +137,4 @@ def rrf_score(rank: int, k: int = 60):
 def rrf_search(query, k: int = 60, limit: int = 5) -> None:
     documents = load_movies()
     hybrid = HybridSearch(documents['movies'])
-    hybrid.rrf_search(query, k=k, limit=limit)
+    return hybrid.rrf_search(query, k=k, limit=limit)
