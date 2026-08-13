@@ -13,3 +13,4 @@ wheels/
 # Other
 /data/
 /cache/
+.DS_Store
