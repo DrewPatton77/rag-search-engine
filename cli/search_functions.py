@@ -71,10 +71,10 @@ class InvertedIndex():
             sys.exit(1)
 
     def get_tf(self, doc_id: int, term: str) -> int:
-        return self.term_frequencies[doc_id][single_token(term)]
+        return self.term_frequencies[doc_id][term]
 
     def get_inv_df_score(self, term: str) -> int:
-        term = single_token(term)
+        #term = single_token(term)
 
         total_doc_count: int = len(self.docmap)
 
@@ -87,7 +87,7 @@ class InvertedIndex():
         return math.log((total_doc_count + 1) / (term_match_doc_count + 1))
 
     def get_bm25_inv_df(self, term: str) -> float:
-        term = single_token(term)
+        #term = single_token(term)
 
         N: int = len(self.docmap)
         doc_ids = self.docmap.keys()
@@ -119,7 +119,6 @@ class InvertedIndex():
 
     def bm25_search(self, query: str, limit: int = 5):
         tokens = stem_token(filter_token(tokenize(query)))
-
         docs_with_query = []
         for token in tokens:
             docs = self.get_documents(token)
@@ -180,5 +179,6 @@ def stem_token(tokens: list[str]) -> list[str]:
 def single_token(term: str) -> str:
     token = stem_token(filter_token(tokenize(term)))
     if len(token) != 1:
+        print(token)
         raise Exception('Error: term should be a single token')
     return token[0]
