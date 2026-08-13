@@ -1,6 +1,7 @@
 import argparse
 from search import *
 import constants
+from test_llm import *
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
