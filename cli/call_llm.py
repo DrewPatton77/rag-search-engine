@@ -185,3 +185,45 @@ def llm_summarize(query, titles):
 
     response = get_response(client, model, user_prompt)
     return response
+
+def llm_citations(query, titles):
+    client, model = llm_init()
+    user_prompt = f"""Answer the query below and give information based on the provided documents.
+
+    The answer should be tailored to users of Webflyx, a movie streaming service.
+    If not enough information is available to provide a good answer, say so, but give the best answer possible while citing the sources available.
+
+    Query: {query}
+
+    Documents:
+    {documents}
+
+    Instructions:
+    - Provide a comprehensive answer that addresses the query
+    - Cite sources in the format [1], [2], etc. when referencing information
+    - If sources disagree, mention the different viewpoints
+    - If the answer isn't in the provided documents, say "I don't have enough information"
+    - Be direct and informative
+
+    Answer:"""
+    response = get_response(client, model, user_prompt)
+    return response
+
+def llm_question(question, context):
+    client, model = llm_init()
+    user_prompt = f"""Answer the user's question based on the provided movies that are available on Webflyx, a streaming service.
+
+    Question: {question}
+
+    Documents:
+    {context}
+
+    Instructions:
+    - Answer questions directly and concisely
+    - Be casual and conversational
+    - Don't be cringe or hype-y
+    - Talk like a normal person would in a chat conversation
+
+    Answer:"""
+    response = get_response(client, model, user_prompt)
+    return response
