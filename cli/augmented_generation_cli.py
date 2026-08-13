@@ -12,6 +12,12 @@ def main() -> None:
     summarize_parser = subparsers.add_parser("summarize", help="Summarizes the search results with respect to the query")
     summarize_parser.add_argument("query", type=str, help="Search query for summary")
 
+    citations_parser = subparsers.add_parser("citations", help="LLM generates a response with citations")
+    citations_parser.add_argument("query", type=str, help="Search query for response and citations")
+
+    question_parser = subparsers.add_parser("question", help="LLM will answer a question query")
+    question_parser.add_argument("query", help="Question query for answer")
+
     args = parser.parse_args()
 
     match args.command:
@@ -24,7 +30,6 @@ def main() -> None:
                 titles += f"- {ranked_docs[id]['title']}\n"
 
             llm_response = RAG(query, titles)
-
             print("Search Results:")
             print(titles)
             print("")
@@ -39,11 +44,38 @@ def main() -> None:
                 titles += f"- {ranked_docs[id]['title']}\n"
 
             llm_response = llm_summarize(query, titles)
-
             print("Search Results:")
             print(titles)
             print("")
             print("LLM Summary:")
+            print(f"{llm_response}")
+
+        case "citations":
+            query = args.query
+            ranked_docs = rrf_search(query, k=60, limit=5)
+            titles = ""
+            for id in ranked_docs:
+                titles += f"- {ranked_docs[id]['title']}\n"
+
+            llm_response = llm_summarize(query, titles)
+            print("Search Results:")
+            print(titles)
+            print("")
+            print("LLM Answer:")
+            print(f"{llm_response}")
+
+        case "question":
+            query = args.query
+            ranked_docs = rrf_search(query, k=60, limit=5)
+            titles = ""
+            for id in ranked_docs:
+                titles += f"- {ranked_docs[id]['title']}\n"
+
+            llm_response = llm_question(query, titles)
+            print("Search Results:")
+            print(titles)
+            print("")
+            print("LLM Answer:")
             print(f"{llm_response}")
 
         case _:
