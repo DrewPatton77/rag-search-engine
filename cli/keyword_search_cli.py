@@ -1,7 +1,7 @@
 import argparse
 from search import *
 import constants
-from test_llm import *
+from call_llm import *
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -34,7 +34,7 @@ def main() -> None:
 
     bm25search_parser = subparsers.add_parser("bm25search", help="Search movies using full BM25 scoring")
     bm25search_parser.add_argument("query", type=str, help="Search query")
-    bm25search_parser.add_argument("-l", "--limit", nargs="?", const=5, help="The number of movies to return")
+    bm25search_parser.add_argument("-l", "--limit", type=int, nargs="?", const=5, help="The number of movies to return")
 
     args = parser.parse_args()
 
