@@ -91,7 +91,11 @@ def main() -> None:
             max_chunk_size = args.max_chunk_size
             overlap = args.overlap
             text = args.text
-            semantic_chunk_text(text, max_chunk_size, overlap)
+            sentence_chunks = semantic_chunk_text(text, max_chunk_size, overlap)
+            print(f"Semantically chunking {len(text)} characters")
+            for i in range(0, len(sentence_chunks)):
+                print(f"{i + 1}. {sentence_chunks[i]}")
+                print("")
 
         case "embed_chunks":
             embed_chunks()
