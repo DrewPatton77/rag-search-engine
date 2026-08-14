@@ -7,6 +7,7 @@ CACHE_DOCLENGTHS_PATH = "cache/doc_lengths.pkl"
 CACHE_MOVIE_EMBEDDINGS_PATH = "cache/movie_embeddings.npy"
 CACHE_CHUNK_EMBEDDINGS_PATH = "cache/chunk_embeddings.npy"
 CACHE_CHUNK_METADATA_PATH = "cache/chunk_metadata.json"
+CACHE_TEXT_EMBEDDINGS_PATH = "cache/text_embeddings.npy"
 BM25_K1 = 1.5
 BM25_B = 0.75
 SCORE_PRECISION = 4
