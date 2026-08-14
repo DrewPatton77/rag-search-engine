@@ -1,6 +1,7 @@
 import os
 from search_functions import InvertedIndex, load_movies
 from semantic_search import ChunkedSemanticSearch
+from sentence_transformers import CrossEncoder
 import numpy as np
 import constants
 
@@ -55,7 +56,7 @@ class HybridSearch:
                 "title": self.idx.docmap[id]['title'],
                 'document': self.idx.docmap[id]['description'][:300],
                 'keyword_score': self.idx.score[id],
-                'semantic_score': 0.0,
+                'semantic_score': 5000,
             }
         for i in range(0, len(semantic_scores_normalized)):
             id = semantic_scores_normalized[i]['id']
@@ -66,7 +67,7 @@ class HybridSearch:
                     "id": id,
                     "title": self.idx.docmap[id]['title'],
                     'document': self.idx.docmap[id]['description'][:300],
-                    'keyword_score': 0.0,
+                    'keyword_score': 5000,
                     'semantic_score': score,
                 }
             hybrid_scores_docmap[id]['semantic_score'] = score
@@ -78,9 +79,10 @@ class HybridSearch:
             if method == "min_max":
                 hybrid_scores_docmap[id]['hybrid_score'] = hybrid_score(keyword_score, semantic_score, alpha=alpha, method=method)
             if method == "rrf":
-                hybrid_scores_docmap[id]['hybrid_score'] = rrf_score(keyword_score) + rrf_score(semantic_score)
+                hybrid_scores_docmap[id]['hybrid_score'] = rrf_score(keyword_score, k=k) + rrf_score(semantic_score, k=k)
 
         sorted_data = dict(sorted(hybrid_scores_docmap.items(), key=lambda item: item[1]['hybrid_score'], reverse=True))
+
         top_results = {}
         for i, id in enumerate(sorted_data):
             if i < limit:
@@ -138,3 +140,14 @@ def rrf_search(query, k: int = 60, limit: int = 5) -> None:
     documents = load_movies()
     hybrid = HybridSearch(documents['movies'])
     return hybrid.rrf_search(query, k=k, limit=limit)
+
+def cross_encoder_reranker(query: str, ranked_docs: dict) -> dict:
+    pairs = []
+    for id in ranked_docs:
+        pairs.append([query, f"{ranked_docs[id].get('title', '')} - {ranked_docs[id].get('document', '')}"])
+    cross_encoder = CrossEncoder("cross-encoder/ms-marco-TinyBERT-L2-v2")
+    scores = cross_encoder.predict(pairs)
+    for i, id in enumerate(ranked_docs):
+        ranked_docs[id]['score'] = scores[i]
+    reranked_docs = dict(sorted(ranked_docs.items(), key=lambda item: item[1]['score'], reverse=True))
+    return reranked_docs
