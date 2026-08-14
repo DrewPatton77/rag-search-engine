@@ -25,11 +25,12 @@ def main() -> None:
         case "rag":
             query = args.query
             ranked_docs = rrf_search(query, k=60, limit=5)
-            titles = ""
-            for id in ranked_docs:
-                titles += f"- {ranked_docs[id]['title']}\n"
 
-            llm_response = RAG(query, titles)
+            titles = format_titles(ranked_docs)
+            doc_string = format_doc_str(ranked_docs)
+
+            llm_response = RAG(query, doc_string)
+
             print("Search Results:")
             print(titles)
             print("")
@@ -39,11 +40,12 @@ def main() -> None:
         case "summarize":
             query = args.query
             ranked_docs = rrf_search(query, k=60, limit=5)
-            titles = ""
-            for id in ranked_docs:
-                titles += f"- {ranked_docs[id]['title']}\n"
 
-            llm_response = llm_summarize(query, titles)
+            titles = format_titles(ranked_docs)
+            doc_string = format_doc_str(ranked_docs)
+
+            llm_response = llm_summarize(query, doc_string)
+
             print("Search Results:")
             print(titles)
             print("")
@@ -53,11 +55,12 @@ def main() -> None:
         case "citations":
             query = args.query
             ranked_docs = rrf_search(query, k=60, limit=5)
-            titles = ""
-            for id in ranked_docs:
-                titles += f"- {ranked_docs[id]['title']}\n"
+
+            titles = format_titles(ranked_docs)
+            doc_string = format_doc_str(ranked_docs)
 
             llm_response = llm_summarize(query, titles)
+
             print("Search Results:")
             print(titles)
             print("")
@@ -67,11 +70,12 @@ def main() -> None:
         case "question":
             query = args.query
             ranked_docs = rrf_search(query, k=60, limit=5)
-            titles = ""
-            for id in ranked_docs:
-                titles += f"- {ranked_docs[id]['title']}\n"
 
-            llm_response = llm_question(query, titles)
+            titles = format_titles(ranked_docs)
+            doc_string = format_doc_str(ranked_docs)
+
+            llm_response = llm_question(query, doc_string)
+
             print("Search Results:")
             print(titles)
             print("")
@@ -80,6 +84,21 @@ def main() -> None:
 
         case _:
            parser.print_help()
+
+def format_titles(ranked_docs):
+    titles = ""
+    for id in ranked_docs:
+        titles += f"- {ranked_docs[id]['title']}\n"
+    return titles
+
+def format_doc_str(ranked_docs):
+    doc_list_str = ""
+    for id in ranked_docs:
+        doc_list_str += f"Movie ID: {id}\n"
+        doc_list_str += f"Title: {ranked_docs[id]['title']}\n"
+        doc_list_str += f"Description: {ranked_docs[id]['document']}...\n"
+    return doc_list_str
+
 
 if __name__ == "__main__":
    main()
