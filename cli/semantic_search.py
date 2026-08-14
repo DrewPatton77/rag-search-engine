@@ -250,7 +250,6 @@ def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) ->
 
 
     if len(sentences) == 1 and sentences[0].endswith(('.', '!', '?')):
-        #print(f"1. {sentences[0]}")
         return sentences
 
     if overlap <= 0:
@@ -262,11 +261,10 @@ def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) ->
             if len(chunks) == 0:
                 continue
             sentence_chunks.append(chunks)
-        #sentence_chunks_unjoined = [sentences[i:i + max_chunk_size] for i in range(0, len(sentences), max_chunk_size)]
     else:
         sentence_chunks= chunk_overlap(sentences, max_chunk_size, overlap=overlap)
 
-    #print(f"Semantically chunking {text_len} characters")
+    print(f"Semantically chunking {text_len} characters")
     #for i in range(0, len(sentence_chunks)):
         #print(f"{i + 1}. {sentence_chunks[i]}")
     return sentence_chunks
