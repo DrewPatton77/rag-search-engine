@@ -237,7 +237,7 @@ def chunk_text(text: str, chunk_size: int = 200, overlap: int = 0) -> None:
 
     print(f"Chunking {text_len} characters")
     for i in range(0,len(word_chunks)):
-        print(f"{i + 1}. {" ".join(word_chunks[i])}")
+        print(f"{i + 1}. {word_chunks[i]}")
 
 def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) -> list[str]:
     text_len = len(text)
