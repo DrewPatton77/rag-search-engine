@@ -264,9 +264,6 @@ def semantic_chunk_text(text: str, max_chunk_size: int = 4, overlap: int = 0) ->
     else:
         sentence_chunks= chunk_overlap(sentences, max_chunk_size, overlap=overlap)
 
-    print(f"Semantically chunking {text_len} characters")
-    #for i in range(0, len(sentence_chunks)):
-        #print(f"{i + 1}. {sentence_chunks[i]}")
     return sentence_chunks
 
 def embed_chunks():
