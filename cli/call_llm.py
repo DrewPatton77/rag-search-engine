@@ -9,6 +9,7 @@ def call_llm(query: str, method: str | None = None,  rerank_method: str | None =
 
     user_prompt = get_user_prompt(query, method=method, rerank_method=rerank_method, evaluate=evaluate, doc=doc, doc_list_str=doc_list_str)
 
+    #print(f"USER PROMPT: {user_prompt}")
     response = get_response(client, model, user_prompt)
 
     return response
@@ -45,6 +46,7 @@ def get_response(client, model, user_prompt):
     return response.choices[0].message.content
 
 def get_user_prompt(query: str, method: str | None = None,  rerank_method: str | None = None, evaluate: bool | None = None, doc: dict | None = None, doc_list_str: str | None = None):
+
     if method == "spell":
         user_prompt = f"""
         Fix any spelling errors in the user-provided movie search query below.
@@ -137,7 +139,7 @@ def get_user_prompt(query: str, method: str | None = None,  rerank_method: str |
         Query: "{query}"
 
         Results:
-        {chr(10).join(doc_list_str)}
+        {doc_list_str}
 
         Scale:
         - 3: Highly relevant
@@ -150,6 +152,8 @@ def get_user_prompt(query: str, method: str | None = None,  rerank_method: str |
         Return ONLY the scores in the same order you were given the documents. Return a valid JSON list, nothing else. For example:
 
         [2, 0, 3, 2, 0, 1]"""
+
+    return user_prompt
 
 def RAG(query, titles):
     client, model = llm_init()
@@ -227,3 +231,32 @@ def llm_question(question, context):
     Answer:"""
     response = get_response(client, model, user_prompt)
     return response
+
+
+def llm_image(data_url, query: str):
+    client, model = llm_init()
+
+    system_prompt = """Given the included image and text query, rewrite the text query to improve search results from a movie database. Make sure to:
+    - Synthesize visual and textual information
+    - Focus on movie-specific details (actors, scenes, style, etc.)
+    - Return only the rewritten query, without any additional commentary"""
+
+    user_prompt = [
+        {"type": "text", "text": system_prompt.strip()},
+        {"type": "image_url", "image_url": {"url": data_url}},
+        {"type": "text", "text": query.strip()},
+    ]
+
+    messages = [
+        {
+            "role": "user",
+            "content": user_prompt
+        }
+    ]
+
+    response = client.chat.completions.create(model=model, messages=messages)
+
+    content = response.choices[0].message.content
+    print(f"Rewritten query: {content.strip()}")
+    if response.usage is not None:
+        print(f"Total tokens: {response.usage.total_tokens}")
