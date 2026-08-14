@@ -77,33 +77,18 @@ def main() -> None:
                         doc_list_str += f"Title: {ranked_docs[id]['title']}\n"
                         doc_list_str += f"Description: {ranked_docs[id]['document']}...\n"
 
-                    print(doc_list_str)
-                    rerank_json = call_llm(query, rerank_method=rerank_method, doc_list_str=doc_list_str)
-                    print(f"rerank_json: {rerank_json}")
-                    with open("cache/rerank_array.json", "wb") as f:
-                        f.write(rerank_json)
+                    reranked_json = call_llm(query, rerank_method=rerank_method, doc_list_str=doc_list_str)
+                    with open("cache/reranked_array.json", "w") as f:
+                        f.write(reranked_json)
+                    with open("cache/reranked_array.json", "r") as f:
+                        data = f.read()
 
-                    rerank_array = json.loads(rerank_json)
-                    rerank_docs = {id: ranked_docs[id] for id in rerank_array}
-                    for i, id in enumerate(rerank):
-                        if i < limit / 5:
-                            print(f"{i + 1}. {sorted_docs[int(id)]['title']}")
-                            print(f"Re-rank Rank: {i}")
-                            print(f"   RRF Score: {sorted_docs[int(id)]['score']}/10")
-                            print(f"   BM25 Rank: {sorted_docs[int(id)]['keyword_score']}, Semantic Rank: {sorted_docs[id]['semantic_score']}")
-                            print(f"   {sorted_docs[int(id)]['document']}...")
-
+                    reranked_array = json.loads(data)
+                    reranked_docs = {id: ranked_docs[id] for id in reranked_array}
 
 
                 if rerank_method == "cross_encoder":
-                    pairs = []
-                    for id in ranked_docs:
-                        pairs.append([query, f"{ranked_docs[id].get('title', '')} - {ranked_docs[id].get('document', '')}"])
-                    cross_encoder = CrossEncoder("cross-encoder/ms-marco-TinyBERT-L2-v2")
-                    scores = cross_encoder.predict(pairs)
-                    for i, id in enumerate(ranked_docs):
-                        ranked_docs[id]['score'] = scores[i]
-                    reranked_docs = dict(sorted(ranked_docs.items(), key=lambda item: item[1]['score'], reverse=True))
+                    reranked_docs = cross_encoder_reranker(query, ranked_docs)
                     #debug_log(query, ranked_docs, reranked_docs)
                 print_results_rrf(reranked_docs, rerank_method=rerank_method, limit=limit / 5)
 
@@ -116,11 +101,11 @@ def main() -> None:
                     formatted_results += f"BM25 Rank: {ranked_docs[id]['keyword_score']}, Semantic Rank: {ranked_docs[id]['semantic_score']}\n"
                     formatted_results += f"{ranked_docs[id]['document']}...\n"
 
-                ranked_json = call_llm(query, evaluate=evaluate, doc_list_str=formatted_results)
-                print(f"rerank_json: {rerank_json}")
-                with open("cache/rerank_array_eval.json", "wb") as f:
-                    f.write(rerank_json)
-                with open("cache/rerank_array_eval.json", "rb") as f:
+                reranked_json = call_llm(query, evaluate=evaluate, doc_list_str=formatted_results)
+                print(f"rerank_json: {reranked_json}")
+                with open("cache/rerank_array_eval.json", "w") as f:
+                    f.write(reranked_json)
+                with open("cache/rerank_array_eval.json", "r") as f:
                     data = f.read()
                 rerank_array = json.loads(data)
                 for i,id in enumerate(ranked_docs):
@@ -140,9 +125,11 @@ def print_results_rrf(docs: dict, rerank_method: str | None = None, limit: int =
         if i < limit:
             print(f"{i + 1}. {docs[id]['title']}")
             if rerank_method != None:
-                print(f"Re-rank Rank: {i}")
-            if rerank_method != "batch":
+                print(f"Re-rank Rank: {i + 1}")
+            if rerank_method == "individual":
                 print(f"Re-rank Score {docs[id]['score']}/10")
+            if rerank_method == "cross_encoder":
+                print(f"Cross Encoder Score: {docs[id]['score']}")
             else:
                 print(f"Reciprocal Rank Fusion: {docs[id]['hybrid_score']:.3f}")
             print(f"BM25 Rank: {docs[id]['keyword_score']}, Semantic Rank: {docs[id]['semantic_score']}")
