@@ -85,4 +85,4 @@ def bm25search_command(query: str, limit: int = 5) -> None:
     for i, doc_id in enumerate(iindex.score):
         if i >= limit:
             break
-        print(f"{i+1}. ({doc_id}) {iindex.docmap[doc_id]['title']} - Score: {iindex.score[doc_id]:.2f}")
+        print(f"{i+1}. (ID. {doc_id}) {iindex.docmap[doc_id]['title']} - Score: {iindex.score[doc_id]:.2f}")
