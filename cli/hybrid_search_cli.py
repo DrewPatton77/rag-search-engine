@@ -92,7 +92,7 @@ def main() -> None:
                     #debug_log(query, ranked_docs, reranked_docs)
                 print_results_rrf(reranked_docs, rerank_method=rerank_method, limit=limit / 5)
 
-            elif evaluate != None:
+            elif evaluate == True:
                 ranked_docs = rrf_search(query, k=k, limit=limit)
                 formatted_results = ""
                 for i, id in enumerate(ranked_docs):
