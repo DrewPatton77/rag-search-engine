@@ -101,7 +101,10 @@ def main() -> None:
                     formatted_results += f"BM25 Rank: {ranked_docs[id]['keyword_score']}, Semantic Rank: {ranked_docs[id]['semantic_score']}\n"
                     formatted_results += f"{ranked_docs[id]['document']}...\n"
 
-                reranked_json = call_llm(query, evaluate=evaluate, doc_list_str=formatted_results)
+                rerank = "User Safety: safe"
+                while rerank == "User Safety: safe":
+                    rerank = call_llm(query, evaluate=evaluate, doc_list_str=formatted_results)
+                reranked_json = rerank
                 print(f"rerank_json: {reranked_json}")
                 with open("cache/rerank_array_eval.json", "w") as f:
                     f.write(reranked_json)
