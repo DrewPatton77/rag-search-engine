@@ -68,7 +68,7 @@ def main() -> None:
                             rerank = call_llm(query, rerank_method=rerank_method, doc=ranked_docs[id])
                         ranked_docs[id]['ranking'] = float(rerank)
                         sleep(3)
-                    reranked_docs = dict(sorted(ranked_docs.items(), key=lambda item: item[1]['score'], reverse=True))
+                    reranked_docs = dict(sorted(ranked_docs.items(), key=lambda item: item[1]['ranking'], reverse=True))
 
                 if rerank_method == "batch":
                     doc_list_str = ""
@@ -130,7 +130,7 @@ def print_results_rrf(docs: dict, rerank_method: str | None = None, limit: int =
             if rerank_method != None:
                 print(f"Re-rank Rank: {i + 1}")
             if rerank_method == "individual":
-                print(f"Re-rank Score {docs[id]['score']}/10")
+                print(f"Re-rank Score {docs[id]['ranking']}/10")
             if rerank_method == "cross_encoder":
                 print(f"Cross Encoder Score: {docs[id]['score']}")
             else:
