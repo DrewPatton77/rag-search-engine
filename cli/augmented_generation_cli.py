@@ -59,6 +59,8 @@ def main() -> None:
             titles = format_titles(ranked_docs)
             doc_string = format_doc_str(ranked_docs)
 
+            print(f'doc_string {doc_string}')
+
             llm_response = llm_citations(query, doc_string)
 
             print("Search Results:")
