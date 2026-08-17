@@ -260,3 +260,5 @@ def llm_image(data_url, query: str):
     print(f"Rewritten query: {content.strip()}")
     if response.usage is not None:
         print(f"Total tokens: {response.usage.total_tokens}")
+
+    return content
