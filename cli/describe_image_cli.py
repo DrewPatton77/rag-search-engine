@@ -20,7 +20,13 @@ def main() -> None:
         img = f.read()
 
     data_url = f"data:{mime};base64,{base64.b64encode(img).decode()}"
-    llm_image(data_url, query)
+
+    response = "User Safety: safe"
+    while response == "User Safety: safe":
+        response = llm_image(data_url, query)
+
+    print("Rewritten query:")
+    print(response)
 
 
 if __name__ == "__main__":
