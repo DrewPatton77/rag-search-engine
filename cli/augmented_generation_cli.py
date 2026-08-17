@@ -59,7 +59,7 @@ def main() -> None:
             titles = format_titles(ranked_docs)
             doc_string = format_doc_str(ranked_docs)
 
-            llm_response = llm_summarize(query, titles)
+            llm_response = llm_citations(query, doc_string)
 
             print("Search Results:")
             print(titles)
