@@ -70,7 +70,8 @@ class MultimodalSearch:
         return embedding[0]
 
 def verify_image_embedding(image_path: str):
-    mms = MultimodalSearch()
+    documents = load_movies()
+    mms = MultimodalSearch(documents)
     embedding = mms.embed_image(image_path)
     print(f"Embedding shape: {embedding.shape[0]} dimensions")
 
