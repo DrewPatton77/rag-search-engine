@@ -190,7 +190,7 @@ def llm_summarize(query, titles):
     response = get_response(client, model, user_prompt)
     return response
 
-def llm_citations(query, titles):
+def llm_citations(query, documents):
     client, model = llm_init()
     user_prompt = f"""Answer the query below and give information based on the provided documents.
 
