@@ -257,7 +257,6 @@ def llm_image(data_url, query: str):
     response = client.chat.completions.create(model=model, messages=messages)
 
     content = response.choices[0].message.content
-    print(f"Rewritten query: {content.strip()}")
     if response.usage is not None:
         print(f"Total tokens: {response.usage.total_tokens}")
 
