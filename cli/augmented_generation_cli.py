@@ -78,9 +78,6 @@ def main() -> None:
 
             llm_response = llm_question(query, doc_string)
 
-            print("Search Results:")
-            print(titles)
-            print("")
             print("LLM Answer:")
             print(f"{llm_response}")
 
